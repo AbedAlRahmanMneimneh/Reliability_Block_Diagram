@@ -327,8 +327,8 @@ class ReliabilityBlockDiagramApp:
             reliability_expression = self.generate_reliability_expression(min_cut_sets)
             self.results_text.insert(tk.END, f"\nReliability Expression:\n{reliability_expression}\n\n")
             
-            self.results_text.insert(tk.END, f"System Reliability: {reliability:.9f}\n")
-            self.results_text.insert(tk.END, f"System Unreliability: {unreliability:.9f}\n\n")
+            self.results_text.insert(tk.END, f"System Reliability: {reliability:.12f}\n")
+            self.results_text.insert(tk.END, f"System Unreliability: {unreliability:.12f}\n\n")
             
             self.results_text.insert(tk.END, "Contribution of each minimal cut set to system unreliability:\n")
             for i, cut_set in enumerate(min_cut_sets, 1):
@@ -340,7 +340,7 @@ class ReliabilityBlockDiagramApp:
                 cut_set_str = f"  Set {i} {{{', '.join(cut_set)}}}: {prob:.9f} ({percent:.2f}%)\n"
                 self.results_text.insert(tk.END, cut_set_str)
             
-            messagebox.showinfo("Success", f"Analysis complete. System reliability: {reliability:.9f}")
+            messagebox.showinfo("Success", f"Analysis complete. System reliability: {reliability:.12f}")
         
         except Exception as e:
             messagebox.showerror("Error", f"Analysis failed: {str(e)}")
