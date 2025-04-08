@@ -218,4 +218,87 @@ def calc_system_unreliability(min_cut_sets, component_probs):
 ## Real-World Example: Bridge Configuration
 
 Consider a bridge network with 5 components A, B, C, D, E:
-```markdown
+```
+    A---B
+    |   |
+    C-E-D
+```
+
+- Component failure probabilities:
+  - A: 0.05, B: 0.04, C: 0.03, D: 0.02, E: 0.06
+
+1. **Success Paths**:
+   - Path 1: A → B
+   - Path 2: C → D
+   - Path 3: A → E → D
+   - Path 4: C → E → B
+
+2. **Minimal Cut Sets**:
+   - Cut Set 1: {A, C} (Order 2)
+   - Cut Set 2: {B, D} (Order 2)
+   - Cut Set 3: {A, E, D} (Order 3)
+   - Cut Set 4: {C, E, B} (Order 3)
+
+3. **Cut Set Probabilities**:
+   - P(Cut Set 1) = 0.05 × 0.03 = 0.0015
+   - P(Cut Set 2) = 0.04 × 0.02 = 0.0008
+   - P(Cut Set 3) = 0.05 × 0.06 × 0.02 = 0.00006
+   - P(Cut Set 4) = 0.03 × 0.06 × 0.04 = 0.000072
+
+4. **First-Order Approximation**:
+   - Q = 0.0015 + 0.0008 + 0.00006 + 0.000072 = 0.002432
+   - R = 1 - Q = 0.997568
+
+5. **With Inclusion-Exclusion**:
+   - Need to subtract overlapping cut set probabilities
+   - Higher precision result: R ≈ 0.997604
+
+## Practical Applications
+
+### System Design Optimization
+- Identify the most cost-effective redundancy strategies
+- Balance reliability against cost, weight, or space constraints
+- Compare alternative system architectures quantitatively
+
+### Maintenance Planning
+- Focus maintenance resources on components in critical cut sets
+- Prioritize preventive maintenance based on component importance
+- Develop optimal inspection schedules based on reliability analysis
+
+### Reliability Improvement Initiatives
+- Identify reliability bottlenecks in existing systems
+- Quantify the impact of component upgrades
+- Evaluate the cost-effectiveness of reliability improvements
+
+### Risk Assessment
+- Identify critical failure modes and their probabilities
+- Quantify risks associated with different system configurations
+- Develop mitigation strategies focused on high-risk areas
+
+## Extending the Analysis
+
+### Time-Dependent Reliability
+- Incorporate component aging and degradation
+- Account for varying failure rates over time
+- Predict system reliability as a function of operating hours
+
+### Monte Carlo Simulation
+- Simulate thousands of system operating scenarios
+- Account for statistical variation in component reliability
+- Handle complex dependencies between components
+
+### Cost-Reliability Optimization
+- Find the optimal balance between reliability and cost
+- Determine the most cost-effective reliability improvements
+- Optimize maintenance and replacement strategies
+
+## Conclusion
+
+Reliability Block Diagram analysis provides a powerful framework for understanding, quantifying, and improving system reliability. Our interactive tool makes this complex analysis accessible, enabling:
+
+- Intuitive modeling of simple to complex systems
+- Rigorous mathematical analysis using established reliability methods
+- Clear identification of system vulnerabilities and critical components
+- Data-driven reliability improvement decisions
+
+By systematically identifying success paths, minimal cut sets, and calculating system reliability, engineers can design more robust systems, develop effective maintenance strategies, and make informed reliability improvement decisions.

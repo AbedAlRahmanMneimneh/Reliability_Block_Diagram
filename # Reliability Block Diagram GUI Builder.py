@@ -486,11 +486,12 @@ class ReliabilityBlockDiagramApp:
         # Apply the inclusion-exclusion principle more systematically
         n = len(min_cut_sets)
         unreliability = 0.0
+        print(n)
         
         # Apply inclusion-exclusion principle
-        for r in range(1, min(n + 1, 4)):  # Limiting to first 3 terms for larger systems
+        for r in range(1, n + 1):  
             sign = (-1)**(r+1)  # Alternating sign: +, -, +, ...
-            
+
             for combo in combinations(range(n), r):
                 # Calculate probability of intersection of these cut sets failing
                 # For cut set intersections, we need the union of component sets
@@ -511,8 +512,9 @@ class ReliabilityBlockDiagramApp:
                     for comp in intersection_components:
                         comp_fail_prob = self.components.get(comp, 0.1)
                         prob *= comp_fail_prob
-                
+
                 unreliability += sign * prob
+
         
         # Ensure results are reasonable
         if unreliability < 0:
