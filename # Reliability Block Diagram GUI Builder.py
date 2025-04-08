@@ -1,8 +1,3 @@
-# Reliability Block Diagram GUI Builder
-# Created: 2025-04-06
-# Author: AbedAlRahmanMneimneh
-# Last modified: 2025-04-06 08:12:40
-
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 import networkx as nx
@@ -15,63 +10,6 @@ import random
 from datetime import datetime
 
 class ReliabilityBlockDiagramApp:
-    """
-    ReliabilityBlockDiagramApp is a GUI application for building and analyzing 
-    Reliability Block Diagrams (RBDs). It allows users to define components, 
-    nodes, and connections to model a system's reliability structure. The app 
-    provides tools for calculating system reliability, identifying minimal cut 
-    sets, and visualizing the system diagram.
-    Classes:
-        ReliabilityBlockDiagramApp: Main application class for the RBD GUI.
-    Methods:
-        __init__(root):
-            Initializes the application, sets up the GUI, and prepares the system graph.
-        add_component():
-            Adds a new component with a specified failure probability to the system.
-        remove_component():
-            Removes a selected component from the system, ensuring it is not in use.
-        add_node():
-            Adds a new node to the system graph.
-        add_connection():
-            Creates a connection between two nodes using a specified component.
-        update_combos():
-            Updates dropdown menus for nodes and components based on the current system state.
-        update_graph():
-            Updates the system diagram visualization based on the current graph structure.
-        calculate_reliability():
-            Analyzes the system to calculate reliability, minimal cut sets, and other metrics.
-        find_minimal_cut_sets(paths):
-            Identifies minimal cut sets from the system's success paths.
-        is_cut_set(comp_set, paths):
-            Checks if a given set of components forms a cut set.
-        is_subset(set1, set2):
-            Determines if one set is a subset of another.
-        calc_system_reliability_from_paths(paths):
-            Calculates system reliability based on success paths.
-        calc_system_unreliability_from_cut_sets(min_cut_sets):
-            Calculates system unreliability based on minimal cut sets.
-        clear_system():
-            Clears the current system, resetting the graph and components.
-        load_series_parallel_example():
-            Loads a predefined series-parallel example system.
-        load_bridge_example():
-            Loads a predefined bridge network example system.
-    Attributes:
-        root: The root Tkinter window for the application.
-        G: A directed graph representing the system structure.
-        components: A dictionary mapping component names to their failure probabilities.
-        comp_name_var: Tkinter StringVar for the component name input.
-        comp_prob_var: Tkinter StringVar for the component failure probability input.
-        comp_listbox: Tkinter Listbox displaying the list of components.
-        from_node_var: Tkinter StringVar for the "from node" selection in connections.
-        to_node_var: Tkinter StringVar for the "to node" selection in connections.
-        conn_comp_var: Tkinter StringVar for the component selection in connections.
-        node_name_var: Tkinter StringVar for the node name input.
-        fig: Matplotlib Figure for the system diagram visualization.
-        ax: Matplotlib Axes for the system diagram.
-        canvas: Matplotlib FigureCanvasTkAgg for embedding the diagram in the GUI.
-        results_text: Tkinter Text widget for displaying analysis results.
-    """
     def __init__(self, root):
         self.root = root
         self.root.title("Reliability Block Diagram Builder")
@@ -160,13 +98,6 @@ class ReliabilityBlockDiagramApp:
         
         ttk.Button(calc_frame, text="Calculate Reliability", command=self.calculate_reliability).pack(fill=tk.X, pady=5)
         ttk.Button(calc_frame, text="Clear System", command=self.clear_system).pack(fill=tk.X, pady=5)
-        
-        # Example systems
-        example_frame = ttk.LabelFrame(left_frame, text="Example Systems", padding=10)
-        example_frame.pack(fill=tk.X, pady=5)
-        
-        ttk.Button(example_frame, text="Load Series-Parallel Example", command=self.load_series_parallel_example).pack(fill=tk.X, pady=5)
-        ttk.Button(example_frame, text="Load Bridge Example", command=self.load_bridge_example).pack(fill=tk.X, pady=5)
         
         # Right panel for graph and results
         right_frame = ttk.LabelFrame(main_frame, text="System Diagram & Results", padding=10)
@@ -374,13 +305,9 @@ class ReliabilityBlockDiagramApp:
             # Find minimal cut sets
             min_cut_sets = self.find_minimal_cut_sets(component_paths)
             
-            # Calculate reliability directly from path sets (more accurate for complex systems)
-            reliability = self.calc_system_reliability_from_paths(component_paths)
-            unreliability = 1 - reliability
-            
-            # Also calculate using cut sets for comparison
-            cut_unreliability = self.calc_system_unreliability_from_cut_sets(min_cut_sets)
-            cut_reliability = 1 - cut_unreliability
+            # Calculate reliability using cut sets
+            unreliability = self.calc_system_unreliability_from_cut_sets(min_cut_sets)
+            reliability = 1 - unreliability
             
             # Display results
             self.results_text.delete(1.0, tk.END)
@@ -396,10 +323,12 @@ class ReliabilityBlockDiagramApp:
                 cut_set_str = f"  Cut Set {i}: {{{', '.join(cut_set)}}} (Order {len(cut_set)})\n"
                 self.results_text.insert(tk.END, cut_set_str)
             
-            self.results_text.insert(tk.END, f"\nSystem Reliability (Path-based calculation): {reliability:.9f}\n")
-            self.results_text.insert(tk.END, f"System Unreliability (Path-based): {unreliability:.9f}\n")
-            self.results_text.insert(tk.END, f"System Reliability (Cut-based calculation): {cut_reliability:.9f}\n")
-            self.results_text.insert(tk.END, f"System Unreliability (Cut-based): {cut_unreliability:.9f}\n\n")
+            # Generate and display reliability expression
+            reliability_expression = self.generate_reliability_expression(min_cut_sets)
+            self.results_text.insert(tk.END, f"\nReliability Expression:\n{reliability_expression}\n\n")
+            
+            self.results_text.insert(tk.END, f"System Reliability: {reliability:.9f}\n")
+            self.results_text.insert(tk.END, f"System Unreliability: {unreliability:.9f}\n\n")
             
             self.results_text.insert(tk.END, "Contribution of each minimal cut set to system unreliability:\n")
             for i, cut_set in enumerate(min_cut_sets, 1):
@@ -415,6 +344,41 @@ class ReliabilityBlockDiagramApp:
         
         except Exception as e:
             messagebox.showerror("Error", f"Analysis failed: {str(e)}")
+    
+    def generate_reliability_expression(self, min_cut_sets):
+        """Generate a mathematical expression of system reliability based on minimal cut sets"""
+        # System reliability R = 1 - Unreliability
+        # Unreliability = P(C₁ ∪ C₂ ∪ ... ∪ Cₙ)
+        # Where Cᵢ is the event that cut set i fails
+        
+        expression = "R = 1 - P(system failure)\n"
+        expression += "  = 1 - P(at least one minimal cut set fails)\n"
+        
+        # First line shows the general form using cut sets
+        cut_sets_union = " ∪ ".join([f"C{i}" for i in range(1, len(min_cut_sets) + 1)])
+        expression += f"  = 1 - P({cut_sets_union})\n\n"
+        
+        # Define each cut set
+        for i, cut_set in enumerate(min_cut_sets, 1):
+            components_prod = " × ".join([f"q{comp}" for comp in cut_set])
+            expression += f"Where C{i} = {components_prod}\n"
+        
+        expression += "\nWhere for each component i:\n"
+        expression += "  qᵢ = component failure probability\n"
+        expression += "  rᵢ = 1 - qᵢ = component reliability\n\n"
+        
+        # Using inclusion-exclusion principle
+        expression += "Using the inclusion-exclusion principle:\n"
+        expression += "R = 1 - [∑P(Cᵢ) - ∑P(Cᵢ∩Cⱼ) + ∑P(Cᵢ∩Cⱼ∩Cₖ) - ...]\n\n"
+        
+        # First-order terms
+        expression += "First-order terms:\n"
+        for i, cut_set in enumerate(min_cut_sets, 1):
+            components_list = ", ".join(cut_set)
+            components_prod = " × ".join([f"q{comp}" for comp in cut_set])
+            expression += f"P(C{i}) = P({{{components_list}}}) = {components_prod}\n"
+        
+        return expression
     
     def find_minimal_cut_sets(self, paths):
         """Find minimal cut sets from the system paths"""
@@ -497,51 +461,6 @@ class ReliabilityBlockDiagramApp:
         """Check if set1 is a subset of set2"""
         return all(item in set2 for item in set1) and len(set1) < len(set2)
     
-    def calc_system_reliability_from_paths(self, paths):
-        """Calculate system reliability from path sets directly"""
-        self.results_text.insert(tk.END, "\nCalculating system reliability from path sets...\n")
-        self.root.update()
-        
-        # Calculate reliability of each path
-        path_reliabilities = []
-        for i, path in enumerate(paths):
-            # For a series path, reliability is product of component reliabilities
-            path_rel = 1.0
-            for component in path:
-                # Component reliability = 1 - failure probability
-                comp_rel = 1.0 - self.components.get(component, 0.1)
-                path_rel *= comp_rel
-            path_reliabilities.append(path_rel)
-            self.results_text.insert(tk.END, f"  Path {i+1} reliability: {path_rel:.9f}\n")
-        
-        # For small systems, use exact inclusion-exclusion principle
-        n = len(paths)
-        system_reliability = 0.0
-        
-        # Convert paths to sets of components for intersection operations
-        path_sets = [set(p) for p in paths]
-        
-        # Apply inclusion-exclusion principle
-        for r in range(1, n + 1):
-            # For each combination of r paths
-            sign = (-1)**(r+1)  # Alternating sign for inclusion-exclusion
-            
-            for combo in combinations(range(n), r):
-                # Calculate probability of the intersection of these paths
-                # This is the product of reliabilities of components in the union of these paths
-                union_set = set()
-                for idx in combo:
-                    union_set.update(paths[idx])
-                
-                term_prob = 1.0
-                for comp in union_set:
-                    comp_rel = 1.0 - self.components.get(comp, 0.1)
-                    term_prob *= comp_rel
-                
-                system_reliability += sign * term_prob
-                
-        return system_reliability
-        
     def calc_system_unreliability_from_cut_sets(self, min_cut_sets):
         """Calculate system unreliability from minimal cut sets"""
         if not min_cut_sets:
@@ -568,9 +487,6 @@ class ReliabilityBlockDiagramApp:
         n = len(min_cut_sets)
         unreliability = 0.0
         
-        # Convert cut sets to sets for easier intersection operations
-        cut_sets = [set(cs) for cs in min_cut_sets]
-        
         # Apply inclusion-exclusion principle
         for r in range(1, min(n + 1, 4)):  # Limiting to first 3 terms for larger systems
             sign = (-1)**(r+1)  # Alternating sign: +, -, +, ...
@@ -578,7 +494,6 @@ class ReliabilityBlockDiagramApp:
             for combo in combinations(range(n), r):
                 # Calculate probability of intersection of these cut sets failing
                 # For cut set intersections, we need the union of component sets
-                # (a component in any cut set failing means that intersection fails)
                 prob = 1.0
                 
                 # Special case for r=1 (individual cut sets)
@@ -587,8 +502,6 @@ class ReliabilityBlockDiagramApp:
                 else:
                     # For the intersection of cut sets, we need the probability that
                     # all components in at least one of the cut sets fail
-                    # This is computed differently than path intersections
-                    # We first find components that appear in any of the cut sets
                     intersection_components = set()
                     for idx in combo:
                         intersection_components.update(min_cut_sets[idx])
@@ -630,106 +543,6 @@ class ReliabilityBlockDiagramApp:
             self.results_text.insert(tk.END, "System cleared. Results will appear here when you analyze a new system.\n")
             
             messagebox.showinfo("System Cleared", "System has been reset")
-    
-    def load_series_parallel_example(self):
-        """Load an example series-parallel system"""
-        if self.G.number_of_edges() > 0 or len(self.components) > 0:
-            if not messagebox.askyesno("Confirm Load Example", 
-                                       "This will overwrite your current system. Continue?"):
-                return
-        
-        # Clear existing system
-        self.G = nx.DiGraph()
-        self.components = {}
-        self.comp_listbox.delete(0, tk.END)
-        
-        # Add nodes
-        nodes = ['source', 'n1', 'n2', 'n3', 'sink']
-        for node in nodes:
-            self.G.add_node(node)
-        
-        # Define components
-        self.components = {
-            'a': 0.05,
-            'b': 0.07,
-            'c': 0.06,
-            'd': 0.08,
-            'e': 0.04
-        }
-        
-        # Add connections for the example with component e connecting between a-b and c-d
-        self.G.add_edge('source', 'n1', component='a', name='a', failure_prob=0.05)
-        self.G.add_edge('n1', 'n3', component='b', name='b', failure_prob=0.07)
-        self.G.add_edge('source', 'n2', component='c', name='c', failure_prob=0.06)
-        self.G.add_edge('n2', 'sink', component='d', name='d', failure_prob=0.08)
-        self.G.add_edge('n1', 'n2', component='e', name='e', failure_prob=0.04)
-        self.G.add_edge('n3', 'sink', component='b', name='b', failure_prob=0.07)
-        
-        # Update GUI
-        self.comp_listbox.delete(0, tk.END)
-        for comp, prob in self.components.items():
-            self.comp_listbox.insert(tk.END, f"{comp}: {prob:.4f}")
-        
-        self.update_combos()
-        self.update_graph()
-        self.results_text.delete(1.0, tk.END)
-        self.results_text.insert(tk.END, "Series-Parallel Example loaded.\n")
-        self.results_text.insert(tk.END, "This example has the following configuration:\n")
-        self.results_text.insert(tk.END, "- Components a and b are in series\n")
-        self.results_text.insert(tk.END, "- Components c and d are in series\n")
-        self.results_text.insert(tk.END, "- The a-b and c-d paths are in parallel\n")
-        self.results_text.insert(tk.END, "- Component e connects between a-b and c-d paths\n\n")
-        self.results_text.insert(tk.END, "Click 'Calculate Reliability' to analyze the system.\n")
-        
-        messagebox.showinfo("Example Loaded", "Series-Parallel Example system has been loaded")
-    
-    def load_bridge_example(self):
-        """Load an example bridge network system"""
-        if self.G.number_of_edges() > 0 or len(self.components) > 0:
-            if not messagebox.askyesno("Confirm Load Example", 
-                                       "This will overwrite your current system. Continue?"):
-                return
-        
-        # Clear existing system
-        self.G = nx.DiGraph()
-        self.components = {}
-        self.comp_listbox.delete(0, tk.END)
-        
-        # Add nodes
-        nodes = ['source', 'n1', 'n2', 'sink']
-        for node in nodes:
-            self.G.add_node(node)
-        
-        # Define components
-        self.components = {
-            'a': 0.05,
-            'b': 0.07,
-            'c': 0.06,
-            'd': 0.08,
-            'e': 0.03
-        }
-        
-        # Add connections
-        self.G.add_edge('source', 'n1', component='a', name='a', failure_prob=0.05)
-        self.G.add_edge('n1', 'n2', component='c', name='c', failure_prob=0.06)
-        self.G.add_edge('n2', 'sink', component='d', name='d', failure_prob=0.08)
-        self.G.add_edge('source', 'n2', component='e', name='e', failure_prob=0.03)
-        self.G.add_edge('n1', 'sink', component='b', name='b', failure_prob=0.07)
-        
-        # Update GUI
-        self.comp_listbox.delete(0, tk.END)
-        for comp, prob in self.components.items():
-            self.comp_listbox.insert(tk.END, f"{comp}: {prob:.4f}")
-        
-        self.update_combos()
-        self.update_graph()
-        self.results_text.delete(1.0, tk.END)
-        self.results_text.insert(tk.END, "Bridge Network Example loaded.\n")
-        self.results_text.insert(tk.END, "This system forms a bridge structure where component e creates\n")
-        self.results_text.insert(tk.END, "a shortcut between two different paths in the system.\n\n")
-        self.results_text.insert(tk.END, "Click 'Calculate Reliability' to analyze the system.\n")
-        
-        messagebox.showinfo("Example Loaded", "Bridge Network Example system has been loaded")
 
 if __name__ == "__main__":
     root = tk.Tk()
