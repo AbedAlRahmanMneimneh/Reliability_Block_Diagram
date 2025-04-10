@@ -277,6 +277,53 @@ Consider a bridge network with 5 components A, B, C, D, E:
 
 ## Extending the Analysis
 
+### Example: Inclusion-Exclusion Principle (3rd Level Approximation)
+
+Consider a system with 4 minimal cut sets:
+- C₁ = {A, B} with probability P(C₁) = 0.02
+- C₂ = {B, C} with probability P(C₂) = 0.03
+- C₃ = {A, D} with probability P(C₃) = 0.015
+- C₄ = {C, D, E} with probability P(C₄) = 0.001
+
+**1st Level Approximation** (Sum of individual cut set probabilities):
+- Q₁ = P(C₁) + P(C₂) + P(C₃) + P(C₄)
+- Q₁ = 0.02 + 0.03 + 0.015 + 0.001 = 0.066
+
+**2nd Level Approximation** (Subtract intersections of pairs):
+- Q₂ = Q₁ - [P(C₁∩C₂) + P(C₁∩C₃) + P(C₁∩C₄) + P(C₂∩C₃) + P(C₂∩C₄) + P(C₃∩C₄)]
+
+For each intersection, we need the probability that BOTH cut sets fail simultaneously:
+
+P(C₁∩C₂) = P(all components in C₁∪C₂ fail)
+
+The correct calculations are:
+- C₁∩C₂: P({A,B,C} all fail) = 0.05 × 0.1 × 0.08 = 0.0004
+- C₁∩C₃: P({A,B,D} all fail) = 0.05 × 0.1 × 0.04 = 0.0002
+- C₁∩C₄: P({A,B,C,D,E} all fail) = 0.05 × 0.1 × 0.08 × 0.04 × 0.06 = 0.0000096
+- C₂∩C₃: P({A,B,C,D} all fail) = 0.05 × 0.1 × 0.08 × 0.04 = 0.00016
+- C₂∩C₄: P({B,C,D,E} all fail) = 0.1 × 0.08 × 0.04 × 0.06 = 0.000192
+- C₃∩C₄: P({A,C,D,E} all fail) = 0.05 × 0.08 × 0.04 × 0.06 = 0.000096
+
+Therefore:
+- Q₂ = 0.066 - [0.0004 + 0.0002 + 0.0000096 + 0.00016 + 0.000192 + 0.000096]
+- Q₂ = 0.066 - 0.0010576 = 0.0649424
+
+**3rd Level Approximation** (Add back intersections of triplets):
+- Q₃ = Q₂ + [P(C₁∩C₂∩C₃) + P(C₁∩C₂∩C₄) + P(C₁∩C₃∩C₄) + P(C₂∩C₃∩C₄)]
+
+For each triplet intersection:
+- C₁∩C₂∩C₃ = {A,B}∩{B,C}∩{A,D} = ∅ → P(∅) = 0
+- C₁∩C₂∩C₄ = {A,B}∩{B,C}∩{C,D,E} = ∅ → P(∅) = 0
+- C₁∩C₃∩C₄ = {A,B}∩{A,D}∩{C,D,E} = ∅ → P(∅) = 0
+- C₂∩C₃∩C₄ = {B,C}∩{A,D}∩{C,D,E} = ∅ → P(∅) = 0
+
+Therefore:
+- Q₃ = Q₂ + [0 + 0 + 0 + 0] = Q₂ = 0.0649424
+
+System reliability: R = 1 - Q₃ = 0.9350576
+
+This example demonstrates how the inclusion-exclusion principle converges toward the actual system reliability with each level of approximation, though sometimes higher order terms may significantly alter the result.
+
 ### Time-Dependent Reliability
 - Incorporate component aging and degradation
 - Account for varying failure rates over time
