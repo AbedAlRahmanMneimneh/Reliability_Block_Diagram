@@ -10,6 +10,45 @@ import random
 from datetime import datetime
 
 class ReliabilityBlockDiagramApp:
+    """
+    Reliability Block Diagram GUI Builder
+    A graphical application for creating, visualizing, and analyzing reliability block diagrams (RBDs).
+    This tool allows engineers to model system reliability by constructing networks of components
+    with defined failure probabilities.
+    Features:
+    ---------
+    * Interactive diagram building with nodes and components
+    * Component management with failure probability assignment
+    * Visualization of the reliability block diagram
+    * System reliability analysis using minimal cut sets approach
+    * Detailed results showing:
+        - Success paths through the system
+        - Minimal cut sets identification 
+        - System reliability calculation
+        - Reliability expression generation based on cut sets
+    Implementation Details:
+    ----------------------
+    The application uses the following approach for reliability calculation:
+    1. Identifies all possible paths from source to sink through graph travesrasal algorithms
+    2. Determines minimal cut sets (sets of components whose failure causes system failure)
+    3. Applies inclusion-exclusion principle to calculate system reliability
+    4. Presents detailed analysis results and visualization
+    Parameters:
+    ----------
+    root : tk.Tk
+            The root Tkinter window to which this application will be attached.
+    Attributes:
+    ----------
+    G : networkx.DiGraph
+            The directed graph representing the system model
+    components : dict
+            Dictionary mapping component names to their failure probabilities
+    results_text : tk.Text
+            Text widget displaying analysis results
+    fig, ax, canvas : matplotlib components
+            Used for visualization of the reliability block diagram
+    Note: The application assumes a directed system with a single source and sink node.
+    """
     def __init__(self, root):
         self.root = root
         self.root.title("Reliability Block Diagram Builder")
@@ -329,16 +368,6 @@ class ReliabilityBlockDiagramApp:
             
             self.results_text.insert(tk.END, f"System Reliability: {reliability:.12f}\n")
             self.results_text.insert(tk.END, f"System Unreliability: {unreliability:.12f}\n\n")
-            
-            self.results_text.insert(tk.END, "Contribution of each minimal cut set to system unreliability:\n")
-            for i, cut_set in enumerate(min_cut_sets, 1):
-                prob = 1
-                for comp in cut_set:
-                    prob *= self.components.get(comp, 0.1)
-                
-                percent = (prob / unreliability) * 100 if unreliability > 0 else 0
-                cut_set_str = f"  Set {i} {{{', '.join(cut_set)}}}: {prob:.9f} ({percent:.2f}%)\n"
-                self.results_text.insert(tk.END, cut_set_str)
             
             messagebox.showinfo("Success", f"Analysis complete. System reliability: {reliability:.12f}")
         
