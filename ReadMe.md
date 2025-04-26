@@ -7,7 +7,7 @@ You have two options to run the software:
 1. **Download and Run the Executable File**
 If you prefer a simpler approach, you can download and run the .exe file:
 
-- Download the .zip file of this repository
+- Download the .zip file of this repository (you can do so by clicking on the button "<> code" and then clicking "donwload ZIP")
 - Extract the contents of the .zip file to a folder on your computer.
 - Open the folder named "dist".
 - Locate the Reliability_Block_Diagram_GUI_Builder.exe file in the extracted folder and double-click it to launch the software (it might take a minute).
