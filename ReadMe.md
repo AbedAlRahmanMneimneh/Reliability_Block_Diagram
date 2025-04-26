@@ -1,5 +1,24 @@
 # Reliability Block Diagram Analysis: In-Depth Guide
 
+## How to Run the Software
+
+You have two options to run the software:
+
+1. **Download and Run the Executable File**
+If you prefer a simpler approach, you can download and run the .exe file:
+
+- Go to the Releases section of this repository.
+- Download the .zip file containing the executable from the dist folder.
+- Extract the contents of the .zip file to a folder on your computer.
+- Locate the Reliability_Block_Diagram_GUI_Builder.exe file in the extracted folder and double-click it to launch the software.
+
+2. **Clone and Run the Code**  
+   If you're familiar with coding and Git, you can clone this repository and run the code directly in your preferred environment:  
+   ```bash
+   git clone https://github.com/AbedAlRahmanMneimneh/Reliability_Block_Diagram.git
+   cd Reliability_Block_Diagram
+   python Reliability_Block_Diagram_GUI_Builder.py
+
 ## Introduction to Reliability Block Diagrams (RBDs)
 A Reliability Block Diagram (RBD) is a graphical representation of how components in a system are reliability-wise connected. RBDs provide:
 
