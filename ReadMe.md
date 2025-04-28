@@ -19,6 +19,7 @@ If you prefer a simpler approach, you can download and run the .exe file:
    cd Reliability_Block_Diagram
    python Reliability_Block_Diagram_GUI_Builder.py
 
+
 ## Introduction to Reliability Block Diagrams (RBDs)
 A Reliability Block Diagram (RBD) is a graphical representation of how components in a system are reliability-wise connected. RBDs provide:
 
